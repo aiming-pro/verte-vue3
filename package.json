@@ -30,6 +30,16 @@
   },
   "author": "",
   "license": "MIT",
+  "homepage": "https://aiming-pro.github.io/verte-vue3/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aiming-pro/verte-vue3"
+  },
+  "keywords": [
+    "Vue 3",
+    "Vue",
+    "color-picker"
+  ],
   "dependencies": {
     "color-fns": "^0.0.10"
   }
