@@ -4,6 +4,8 @@
   </a>
 </p>
 
+[![npm](https://img.shields.io/npm/v/verte-vue3.svg)](https://www.npmjs.com/package/verte-vue3)
+
 # Verte Vue 3
 
 > This is a Vue 3 fork of the [original Verte](https://github.com/baianat/verte).
