@@ -26,6 +26,7 @@ import { getClosestValue, debounce, getEventCords } from '../utils';
 
 export default {
   name: 'VerteSlider',
+  compatConfig: { MODE: 3 },
   props: {
     gradient: Array,
     classes: Array,

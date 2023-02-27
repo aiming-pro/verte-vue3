@@ -142,6 +142,7 @@ import {
 
 export default {
   name: 'Verte',
+  compatConfig: { MODE: 3 },
   components: {
     Picker,
     Slider,

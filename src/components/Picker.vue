@@ -37,6 +37,7 @@ import { getCartesianCoords, getPolarCoords, getEventCords } from '../utils';
 
 export default {
   name: 'VertePicker',
+  compatConfig: { MODE: 3 },
   components: {
     Slider,
   },
