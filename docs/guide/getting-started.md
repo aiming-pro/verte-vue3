@@ -21,10 +21,10 @@ Click the logo above to change its color.
 First step is to install it using `yarn` or `npm`:
 
 ```bash
-yarn add verte
+yarn add verte-vue3
 
 # or use npm
-npm install verte --save
+npm install verte-vue3 --save
 ```
 
 ### CDN

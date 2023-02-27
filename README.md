@@ -26,10 +26,10 @@ A Complete Vue.js Color Picker Component
 First step is to install it using `yarn` or `npm`:
 
 ```bash
-npm install verte --save
+npm install verte-vue3 --save
 
 # or use yarn
-yarn add verte
+yarn add verte-vue3
 ```
 
 ### Basic usage
