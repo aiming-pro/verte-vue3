@@ -44,4 +44,11 @@ export default defineConfig({
       message: 'Released under the MIT License.',
     },
   },
+  vite: {
+    resolve: {
+      alias: {
+        'color-fns': 'node_modules/color-fns/dist/color-fns.esm.js',
+      },
+    },
+  },
 });
