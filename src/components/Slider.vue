@@ -1,23 +1,23 @@
 <template lang="pug">
-  .slider(ref="wrapper")
-    .slider__track(
-      ref="track"
-      v-on="trackSlide ? { mousedown: select, touchstart: select } : { }"
+.slider(ref="wrapper")
+  .slider__track(
+    ref="track"
+    v-on="trackSlide ? { mousedown: select, touchstart: select } : { }"
+    )
+    .slider__fill(ref="fill")
+    .slider__handle(
+      v-for="handle in handles"
+      @mousedown="select"
+      @touchstart="select"
+      :style="`transform: translate(${handle.position}px, 0); background-color: ${handle.color};`"
       )
-      .slider__fill(ref="fill")
-      .slider__handle(
-        v-for="handle in handles"
-        @mousedown="select"
-        @touchstart="select"
-        :style="`transform: translate(${handle.position}px, 0); background-color: ${handle.color};`"
-        )
-        .slider__label(v-if="label") {{ handle.value }}
-    input.slider__input(
-      ref="input"
-      :type="colorCode ? 'text' : 'number'"
-      v-show="editable"
-      @change="updateValue($event.target.value)"
-      )
+      .slider__label(v-if="label") {{ handle.value }}
+  input.slider__input(
+    ref="input"
+    :type="colorCode ? 'text' : 'number'"
+    v-show="editable"
+    @change="updateValue($event.target.value)"
+    )
 </template>
 
 <script>
@@ -37,38 +37,38 @@ export default {
     min: { type: Number, default: 0 },
     max: { type: Number, default: 255 },
     step: { type: Number, default: 1 },
-    value: { type: Number, default: 0 },
-    handlesValue: { type: Array, default: () => [0] }
+    modelValue: { type: Number, default: 0 },
+    handlesValue: { type: Array, default: () => [0] },
   },
   data: () => ({
     fill: {
       translate: 0,
-      scale: 0
+      scale: 0,
     },
     multiple: false,
     currentValue: 0,
     handles: [],
-    values: []
+    values: [],
   }),
   watch: {
-    gradient (val) {
+    gradient(val) {
       this.initGradient(val);
       this.reloadHandlesColor();
     },
-    values () {
+    values() {
       this.multiple = this.values.length > 1;
       this.fill = this.multiple ? false : this.fill || {};
     },
-    value (val, oldVal) {
+    modelValue(val, oldVal) {
       if (val === oldVal || val === this.currentValue) return;
 
-      this.updateValue(this.value, true);
-    }
+      this.updateValue(this.modelValue, true);
+    },
   },
   methods: {
-    init () {
+    init() {
       this.$emitInputEvent = debounce(() => {
-        this.$emit('input', this.currentValue);
+        this.$emit('update:modelValue', this.currentValue);
       });
       this.multiple = this.values.length > 1;
       this.values = this.handlesValue;
@@ -76,7 +76,7 @@ export default {
         return { value, position: 0, color: '#fff' };
       });
       if (this.values.length === 1) {
-        this.values[0] = Number(this.value);
+        this.values[0] = Number(this.modelValue);
       }
       this.values.sort();
 
@@ -90,7 +90,7 @@ export default {
         this.updateValue(handle, true);
       });
     },
-    initElements () {
+    initElements() {
       this.wrapper = this.$refs.wrapper;
       this.track = this.$refs.track;
       this.fill = this.$refs.fill;
@@ -101,28 +101,28 @@ export default {
         this.wrapper.classList.add(...this.classes);
       }
     },
-    initGradient (gradient) {
+    initGradient(gradient) {
       if (gradient.length > 1) {
         this.fill.style.backgroundImage = `linear-gradient(90deg, ${gradient})`;
         return;
       }
       this.fill.style.backgroundImage = '';
       this.fill.style.backgroundColor = gradient[0];
-      this.handles.forEach(handle => {
+      this.handles.forEach((handle) => {
         handle.style.color = gradient[0];
       });
     },
-    handleResize () {
+    handleResize() {
       this.updateWidth();
       this.updateValue(this.currentValue, true);
     },
-    initEvents () {
+    initEvents() {
       window.addEventListener('resize', this.handleResize);
     },
     /**
      * fire select events
      */
-    select (event) {
+    select(event) {
       event.preventDefault();
       event.stopPropagation();
       // check if  left mouse is clicked
@@ -150,7 +150,7 @@ export default {
     /**
      * dragging motion
      */
-    dragging (event) {
+    dragging(event) {
       const stepValue = this.getStepValue(event);
       if (!this.ticking) {
         window.requestAnimationFrame(() => {
@@ -164,25 +164,25 @@ export default {
     /**
      * release handler
      */
-    release () {
+    release() {
       this.track.classList.remove('slider--dragging');
       document.removeEventListener('mousemove', this.tempDrag);
       document.removeEventListener('touchmove', this.tempDrag);
       document.removeEventListener('mouseup', this.tempRelease);
       document.removeEventListener('touchend', this.tempRelease);
     },
-    getStepValue (event) {
+    getStepValue(event) {
       const { x } = getEventCords(event);
 
-      const mouseValue = (x - this.currentX);
-      const stepCount = parseInt((mouseValue / this.stepWidth) + 0.5, 10);
-      const stepValue = (stepCount * this.step) + this.min;
+      const mouseValue = x - this.currentX;
+      const stepCount = parseInt(mouseValue / this.stepWidth + 0.5, 10);
+      const stepValue = stepCount * this.step + this.min;
       if (!this.decimalsCount) {
         return stepValue;
       }
       return Number(stepValue.toFixed(this.decimalsCount));
     },
-    updateWidth () {
+    updateWidth() {
       const trackRect = this.track.getBoundingClientRect();
       this.currentX = trackRect.left;
       this.width = trackRect.width;
@@ -194,12 +194,12 @@ export default {
      * @param  {Number} value
      * @return {Number}
      */
-    getPositionPercentage (value) {
+    getPositionPercentage(value) {
       return ((value - this.min) / (this.max - this.min)).toFixed(2);
     },
-    normalizeValue (value) {
+    normalizeValue(value) {
       if (isNaN(Number(value))) {
-        return this.value;
+        return this.modelValue;
       }
       if (this.multiple) {
         const prevValue = this.values[this.activeHandle - 1] || this.min;
@@ -208,7 +208,7 @@ export default {
       }
       return Math.min(Math.max(Number(value), this.min), this.max);
     },
-    addHandle (value) {
+    addHandle(value) {
       const closest = getClosestValue(this.values, value);
       const closestIndex = this.values.indexOf(closest);
       const closestValue = this.values[closestIndex];
@@ -216,7 +216,7 @@ export default {
       this.handles.splice(newIndex, 0, {
         value,
         position: 0,
-        color: '#fff'
+        color: '#fff',
       });
       this.values.splice(newIndex, 0, value);
 
@@ -224,7 +224,7 @@ export default {
       this.currentValue = null;
       this.updateValue(value);
     },
-    removeHandle (index) {
+    removeHandle(index) {
       this.handles.splice(index, 1);
       this.values.splice(index, 1);
       this.activeHandle = index === 0 ? index + 1 : index - 1;
@@ -234,16 +234,21 @@ export default {
      * @param  {Number} positionPercentage
      * @return {Number} handle hex color code
      */
-    getHandleColor (positionPercentage) {
+    getHandleColor(positionPercentage) {
       const colorCount = this.gradient.length - 1;
       const region = positionPercentage;
       for (let i = 1; i <= colorCount; i++) {
         // check the current zone
-        if (region >= ((i - 1) / colorCount) && region <= (i / colorCount)) {
+        if (region >= (i - 1) / colorCount && region <= i / colorCount) {
           // get the active color percentage
-          const colorPercentage = (region - ((i - 1) / colorCount)) / (1 / colorCount);
+          const colorPercentage =
+            (region - (i - 1) / colorCount) / (1 / colorCount);
           // return the mixed color based on the zone boundary colors
-          return mixColors(this.gradient[i - 1], this.gradient[i], colorPercentage);
+          return mixColors(
+            this.gradient[i - 1],
+            this.gradient[i],
+            colorPercentage
+          );
         }
       }
       return 'rgb(0, 0, 0)';
@@ -253,7 +258,7 @@ export default {
      * @param {Number} value
      */
 
-    reloadHandlesColor () {
+    reloadHandlesColor() {
       this.handles.forEach((handle, index) => {
         const positionPercentage = this.getPositionPercentage(handle.value);
         const color = this.getHandleColor(positionPercentage);
@@ -261,7 +266,7 @@ export default {
       });
     },
 
-    updateValue (value, muted = false) {
+    updateValue(value, muted = false) {
       // if (Number(value) === this.value) return;
 
       window.requestAnimationFrame(() => {
@@ -275,7 +280,8 @@ export default {
 
         this.values[this.activeHandle] = normalized;
         this.handles[this.activeHandle].value = normalized;
-        this.handles[this.activeHandle].position = positionPercentage * this.width;
+        this.handles[this.activeHandle].position =
+          positionPercentage * this.width;
         this.currentValue = normalized;
         this.$refs.input.value = this.currentValue;
 
@@ -290,28 +296,28 @@ export default {
         if (muted) return;
         this.$emitInputEvent();
       });
-    }
+    },
   },
-  created () {
+  created() {
     const stepSplited = this.step.toString().split('.')[1];
-    this.currentValue = this.value;
+    this.currentValue = this.modelValue;
     this.decimalsCount = stepSplited ? stepSplited.length : 0;
   },
-  mounted () {
+  mounted() {
     this.init();
     this.$nextTick(() => {
       this.updateWidth();
       this.updateValue(undefined, true);
     });
   },
-  destroyed () {
+  unmounted() {
     window.removeEventListener('resize', this.handleResize);
   },
 };
 </script>
 
 <style lang="sass">
-@import '../sass/variables';
+@import '../sass/variables'
 
 .slider
   position: relative
@@ -411,5 +417,4 @@ export default {
   height: 100%
   transform-origin: left top
   border-radius: 10px
-
 </style>

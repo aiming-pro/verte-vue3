@@ -1,7 +1,6 @@
 node_modules
 .vscode
-docs/.vuepress/dist
-.vscode
+docs/.vitepress/cache
 dist
 *.log
 coverage

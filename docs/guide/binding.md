@@ -4,23 +4,14 @@ Verte supports two-way binding using `v-model` to bind the color value to your c
 
 ```vue
 <template>
-  <verte v-model="color" picker="wheel" model="rgb"></verte>
+  <Verte v-model="color" picker="wheel" model="rgb"></Verte>
 </template>
 
-<script>
-  import Vue from 'vue';
-  import Verte from 'verte';
-
-  new Vue ({
-    el: '#app',
-    components: { Verte },
-    data: () => ({
-      color: ''
-    })
-  });
+<script setup>
+const color = ref('');
 </script>
 ```
 
 :::tip
-  The emitted color value will always be in the same configured color-model, the previous code will produce RGB color strings. i.e: `rgb(r,g,b)`.
+The emitted color value will always be in the same configured color-model, the previous code will produce RGB color strings. i.e: `rgb(r,g,b)`.
 :::

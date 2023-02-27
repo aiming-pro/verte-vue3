@@ -132,60 +132,74 @@
 import { toRgb, toHex, toHsl, isValidColor } from 'color-fns';
 import Picker from './Picker.vue';
 import Slider from './Slider.vue';
-import { initStore, MAX_COLOR_HISTROY } from '../store';
-import { isElementClosest, warn, makeListValidator, getEventCords } from '../utils';
+import { MAX_COLOR_HISTROY, useVerteStore } from '../store';
+import {
+  isElementClosest,
+  warn,
+  makeListValidator,
+  getEventCords,
+} from '../utils';
 
 export default {
   name: 'Verte',
   components: {
     Picker,
-    Slider
+    Slider,
+  },
+  setup() {
+    return { verteStore: useVerteStore() };
   },
   props: {
     picker: {
       type: String,
       default: 'square',
-      validator: makeListValidator('picker', ['wheel', 'square'])
+      validator: makeListValidator('picker', ['wheel', 'square']),
     },
-    value: {
+    modelValue: {
       type: String,
-      default: '#000'
+      default: '#000',
     },
     model: {
       type: String,
       default: 'hsl',
-      validator: makeListValidator('model', ['rgb', 'hex', 'hsl'])
+      validator: makeListValidator('model', ['rgb', 'hex', 'hsl']),
     },
     display: {
       type: String,
       default: 'picker',
-      validator: makeListValidator('display', ['picker', 'widget'])
+      validator: makeListValidator('display', ['picker', 'widget']),
     },
     menuPosition: {
       type: String,
       default: 'bottom',
-      validator: makeListValidator('menuPosition', ['top', 'bottom', 'left', 'right', 'center'])
+      validator: makeListValidator('menuPosition', [
+        'top',
+        'bottom',
+        'left',
+        'right',
+        'center',
+      ]),
     },
     showHistory: {
       type: Boolean,
-      default: true
+      default: true,
     },
     colorHistory: {
       type: Array,
-      default: null
+      default: null,
     },
     enableAlpha: {
       type: Boolean,
-      default: true
+      default: true,
     },
     rgbSliders: {
       type: Boolean,
-      default: false
+      default: false,
     },
     draggable: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   data: () => ({
     isMenuActive: true,
@@ -195,35 +209,33 @@ export default {
     hsl: toHsl('#000'),
     delta: { x: 0, y: 0 },
     currentModel: '',
-    internalColorHistory: []
+    internalColorHistory: [],
   }),
   computed: {
-    $_verteStore () {
-      // Should return the store singleton instance.
-      return initStore();
-    },
-    historySource () {
+    historySource() {
       if (this.colorHistory) {
         return this.internalColorHistory;
       }
 
-      return this.$_verteStore.recentColors;
+      return this.verteStore.recentColors.value;
     },
     currentColor: {
-      get () {
+      get() {
         if (!this[this.model] && process.env.NODE_ENV !== 'production') {
-          warn(`You are using a non-supported color model: "${this.model}", the supported models are: "rgb", "hsl" and "hex".`);
+          warn(
+            `You are using a non-supported color model: "${this.model}", the supported models are: "rgb", "hsl" and "hex".`
+          );
           return `rgb(0, 0, 0)`;
         }
 
         return this[this.model].toString();
       },
-      set (val) {
+      set(val) {
         this.selectColor(val);
-      }
+      },
     },
     alpha: {
-      get () {
+      get() {
         if (!this[this.model]) {
           return 1;
         }
@@ -234,53 +246,44 @@ export default {
 
         return this[this.model].alpha;
       },
-      set (val) {
+      set(val) {
         this[this.model].alpha = val;
         this.selectColor(this[this.model]);
-      }
+      },
     },
-    menuOnly () {
+    menuOnly() {
       return this.display === 'widget';
-    }
+    },
   },
   watch: {
-    value (val, oldVal) {
+    modelValue(val, oldVal) {
       if (val === oldVal || val === this.currentColor) return;
 
       // value was updated externally.
       this.selectColor(val);
     },
     rgb: {
-      handler (val) {
+      handler(val) {
         this.hex = toHex(val.toString());
-        this.$emit('input', this.currentColor);
+        this.$emit('update:modelValue', this.currentColor);
       },
-      deep: true
+      deep: true,
     },
-    colorHistory (val) {
+    colorHistory(val) {
       if (this.internalColorHistory !== val) {
         this.internalColorHistory = [...val];
       }
-    }
+    },
   },
-  beforeCreate () {
-    // initialize the store early, _base is the vue constructor.
-    initStore(this.$options._base);
-  },
-  // When used as a target for Vue.use
-  install (Vue, opts) {
-    initStore(Vue, opts);
-    Vue.component('Verte', this); // install self
-  },
-  created () {
+  created() {
     if (this.colorHistory) {
       this.internalColorHistory = [...this.colorHistory];
     }
 
-    this.selectColor(this.value || '#000', true);
+    this.selectColor(this.modelValue || '#000', true);
     this.currentModel = this.model;
   },
-  mounted () {
+  mounted() {
     // give sliders time to
     // calculate its visible width
     this.$nextTick(() => {
@@ -290,7 +293,7 @@ export default {
     });
   },
   methods: {
-    selectColor (color, muted = false) {
+    selectColor(color, muted = false) {
       if (!isValidColor(color)) return;
 
       this.rgb = toRgb(color);
@@ -298,14 +301,14 @@ export default {
       this.hsl = toHsl(color);
 
       if (muted) return;
-      this.$emit('input', this.currentColor);
+      this.$emit('update:modelValue', this.currentColor);
     },
-    switchModel () {
+    switchModel() {
       const models = ['hex', 'rgb', 'hsl'];
       const indx = models.indexOf(this.currentModel);
       this.currentModel = models[indx + 1] || models[0];
     },
-    handleMenuDrag (event) {
+    handleMenuDrag(event) {
       if (event.button === 2) return;
       event.preventDefault();
 
@@ -331,13 +334,13 @@ export default {
       document.addEventListener('touchmove', handleDragging);
       document.addEventListener('touchup', handleRelase);
     },
-    submit () {
+    submit() {
       this.$emit('beforeSubmit', this.currentColor);
       this.addColorToHistory(this.currentColor);
-      this.$emit('input', this.currentColor);
+      this.$emit('update:modelValue', this.currentColor);
       this.$emit('submit', this.currentColor);
     },
-    addColorToHistory (color) {
+    addColorToHistory(color) {
       if (this.colorHistory) {
         if (this.internalColorHistory.length >= MAX_COLOR_HISTROY) {
           this.internalColorHistory.pop();
@@ -348,9 +351,9 @@ export default {
         return;
       }
 
-      this.$_verteStore.addRecentColor(this.currentColor);
+      this.verteStore.addRecentColor(this.currentColor);
     },
-    inputChanged (event, value) {
+    inputChanged(event, value) {
       const el = event.target;
       if (this.currentModel === 'hex') {
         this.selectColor(el.value);
@@ -360,19 +363,19 @@ export default {
       this[this.currentModel][value] = normalized;
       this.selectColor(this[this.currentModel]);
     },
-    toggleMenu () {
+    toggleMenu() {
       if (this.isMenuActive) {
         this.closeMenu();
         return;
       }
       this.openMenu();
     },
-    closeMenu () {
+    closeMenu() {
       this.isMenuActive = false;
       document.removeEventListener('mousedown', this.closeCallback);
       this.$emit('close', this.currentColor);
     },
-    openMenu () {
+    openMenu() {
       this.isMenuActive = true;
       this.closeCallback = (evnt) => {
         if (
@@ -383,16 +386,16 @@ export default {
         }
       };
       document.addEventListener('mousedown', this.closeCallback);
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="sass">
-@import '../sass/variables';
+@import '../sass/variables'
 
-$dot-size: 2px;
-$dot-space: 4px;
+$dot-size: 2px
+$dot-space: 4px
 
 .verte
   position: relative
@@ -572,5 +575,4 @@ $dot-space: 4px;
   box-shadow: 1px 1px 1px rgba($black, 0.2)
   &:hover
     background-color: rgba($black, 0.6)
-
 </style>

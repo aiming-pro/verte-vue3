@@ -38,7 +38,7 @@ import { getCartesianCoords, getPolarCoords, getEventCords } from '../utils';
 export default {
   name: 'VertePicker',
   components: {
-    Slider
+    Slider,
   },
   props: {
     mode: { type: String, default: 'square' },
@@ -46,7 +46,7 @@ export default {
     diameter: { type: Number, default: 180 },
     satSlider: { type: Boolean, default: true },
     alpha: { type: Number, default: 1 },
-    value: { type: String, default: '#fff' }
+    modelValue: { type: String, default: '#fff' },
   },
   data: () => ({
     currentHue: 0,
@@ -54,28 +54,28 @@ export default {
     currentColor: '',
     cursor: {},
     preventUpdating: false,
-    preventEcho: false
+    preventEcho: false,
   }),
   watch: {
     // handles external changes.
-    value (val) {
+    modelValue(val) {
       if (this.preventUpdating) {
         this.preventUpdating = false;
         return;
       }
       this.handleValue(val, true);
     },
-    currentSat () {
+    currentSat() {
       this.updateWheelColors();
       this.updateColor();
     },
-    currentHue () {
+    currentHue() {
       this.updateSquareColors();
       this.updateColor();
-    }
+    },
   },
   methods: {
-    initSquare () {
+    initSquare() {
       // setup canvas
       const edge = this.edge;
       this.$refs.canvas.width = edge;
@@ -83,7 +83,7 @@ export default {
       this.ctx = this.$refs.canvas.getContext('2d');
       this.updateSquareColors();
     },
-    initWheel () {
+    initWheel() {
       // setup canvas
       this.$refs.canvas.width = this.diameter;
       this.$refs.canvas.height = this.diameter;
@@ -94,7 +94,7 @@ export default {
         path: new Path2D(), // eslint-disable-line
         xCords: this.diameter / 2,
         yCords: this.diameter / 2,
-        radius: this.diameter / 2
+        radius: this.diameter / 2,
       };
       this.circle.path.moveTo(this.circle.xCords, this.circle.yCords);
       this.circle.path.arc(
@@ -108,7 +108,7 @@ export default {
       this.updateWheelColors();
     },
     // this function calls when the color changed from outside the picker
-    handleValue (color, muted = false) {
+    handleValue(color, muted = false) {
       const { width, height } = this.pickerRect;
       this.currentColor = toHsl(color);
       // prvent upadtion picker slider for causing
@@ -130,15 +130,15 @@ export default {
         this.currentHue = this.currentColor.hue;
       }
     },
-    updateCursorPosition ({ x, y }) {
+    updateCursorPosition({ x, y }) {
       const { left, top, width, height } = this.pickerRect;
       const normalized = {
         x: Math.min(Math.max(x - left, 0), width),
-        y: Math.min(Math.max(y - top, 0), height)
-      }
+        y: Math.min(Math.max(y - top, 0), height),
+      };
 
       if (
-        this.mode === 'wheel'&&
+        this.mode === 'wheel' &&
         !this.ctx.isPointInPath(this.circle.path, normalized.x, normalized.y)
       ) {
         return;
@@ -149,7 +149,7 @@ export default {
     },
     // select color and update it to verte component
     // this function calls when the color changed from the picker
-    updateColor (muted = false) {
+    updateColor(muted = false) {
       if (this.preventEcho) {
         this.preventEcho = false;
         return;
@@ -158,9 +158,9 @@ export default {
       this.currentColor = this.getCanvasColor();
       this.preventUpdating = true;
       this.$emit('change', this.currentColor);
-      this.$emit('input', this.currentColor);
+      this.$emit('update:modelValue', this.currentColor);
     },
-    updateWheelColors () {
+    updateWheelColors() {
       if (!this.circle) return;
       const { width, height } = this.pickerRect;
 
@@ -172,8 +172,8 @@ export default {
 
       for (let angle = 0; angle < 360; angle += 1) {
         const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
-        const startAngle = (angle - 2) * Math.PI / 180;
-        const endAngle = (angle + 2) * Math.PI / 180;
+        const startAngle = ((angle - 2) * Math.PI) / 180;
+        const endAngle = ((angle + 2) * Math.PI) / 180;
 
         this.ctx.beginPath();
         this.ctx.moveTo(x, y);
@@ -187,7 +187,7 @@ export default {
         this.ctx.fill();
       }
     },
-    updateSquareColors () {
+    updateSquareColors() {
       const { width, height } = this.pickerRect;
       this.ctx.clearRect(0, 0, width, height);
 
@@ -208,7 +208,7 @@ export default {
       this.ctx.fillStyle = grdWhite;
       this.ctx.fillRect(0, 0, width, height);
     },
-    getCanvasColor () {
+    getCanvasColor() {
       const { x, y } = this.cursor;
       let sat = 0;
       let lum = 0;
@@ -219,34 +219,34 @@ export default {
         const xShitft = x - radius;
         const yShitft = (y - radius) * -1;
         const { r, theta } = getPolarCoords(xShitft, yShitft);
-        lum = (radius - r) * 100 / radius;
+        lum = ((radius - r) * 100) / radius;
         hue = !~Math.sign(theta) ? -theta : 360 - theta;
         sat = this.currentSat;
       }
 
       if (this.mode === 'square') {
         const { width, height } = this.pickerRect;
-        sat = x * 100 / width;
-        lum = 100 - (y * 100 / height);
+        sat = (x * 100) / width;
+        lum = 100 - (y * 100) / height;
         hue = this.currentHue;
       }
-    
+
       return new Colors.HslColor({
         alpha: this.alpha,
         hue: Math.round(hue),
         sat: Math.round(sat),
-        lum: Math.round(lum)
+        lum: Math.round(lum),
       });
     },
-    handleSelect (event) {
+    handleSelect(event) {
       event.preventDefault();
       this.pickerRect = this.$refs.canvas.getBoundingClientRect();
       this.updateCursorPosition(getEventCords(event));
       const tempFunc = (evnt) => {
         window.requestAnimationFrame(() => {
-          this.updateCursorPosition(getEventCords(evnt))
+          this.updateCursorPosition(getEventCords(evnt));
         });
-      }
+      };
       const handleRelase = () => {
         document.removeEventListener('mousemove', tempFunc);
         document.removeEventListener('touchmove', tempFunc);
@@ -257,9 +257,9 @@ export default {
       document.addEventListener('touchmove', tempFunc);
       document.addEventListener('mouseup', handleRelase);
       document.addEventListener('touchend', handleRelase);
-    }
+    },
   },
-  mounted () {
+  mounted() {
     this.pickerRect = this.$refs.canvas.getBoundingClientRect();
     if (this.mode === 'wheel') {
       this.initWheel();
@@ -268,14 +268,14 @@ export default {
       this.initSquare();
     }
     this.$nextTick(() => {
-      this.handleValue(this.value);
+      this.handleValue(this.modelValue);
     });
-  }
+  },
 };
 </script>
 
 <style lang="sass">
-@import '../sass/variables';
+@import '../sass/variables'
 
 .verte-picker
   width: 100%
@@ -314,5 +314,4 @@ export default {
   &__input
     display: flex
     margin-bottom: $margin
-
 </style>

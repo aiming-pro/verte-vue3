@@ -4,27 +4,28 @@ Verte offers a couple of ways to maintain the list of recent colors picked using
 
 ## Internal Store
 
-By default all Verte pickers share the same color history, which can be configured when first configuring verte.
+By default all Verte pickers share the same color history. The default can be configured with a composable.
 
 ```vue
-import Vue from 'vue';
-import Verte from 'verte';
+<script setup>
+import { useVerteStore } from 'verte';
 
-Vue.use(Verte, {
-  recentColors: JSON.parse(localStorage.getItem('colors'))
-});
+useVerteStore({ recentColors: localStorage.getItem('colors') });
+</script>
 ```
 
-You can subscribe to the changes of the recent colors by passing an `onRecentColorsChange` handler to the config object:
+You can subscribe to the changes of the recent colors by using a deep watcher on `recentColors` in the store:
 
 ```vue
+<script setup>
+import { useVerteStore } from 'verte';
+
 // fetch and save the recent colors to the localstorage.
-Vue.use(Verte, {
-  recentColors: JSON.parse(localStorage.getItem('colors')),
-  onRecentColorsChange (colors) {
-    localStorage.setItem('colors', JSON.stringify(colors));
-  }
-});
+const { recentColors } = useVerteStore({ recentColors: localStorage.getItem('colors') });
+watch(recentColors, (colors) => {
+  localStorage.setItem('colors', JSON.stringify(colors));
+}, { deep: true });
+</script>
 ```
 
 ## Using Props
@@ -35,14 +36,14 @@ Verte accepts a `colorHistory` prop which is an array of color strings, this wil
 <Verte :showHistory="true" :colorHistory="list"></Verte>
 ```
 
-You could allow sharing between some verte components using `.sync` modifier:
+You could allow sharing between some verte components using `v-model`:
 
 ```vue
-<Verte :showHistory="true" :colorHistory.sync="list"></Verte>
+<Verte :showHistory="true" v-model:colorHistory="list"></Verte>
 
-<Verte :showHistory="true" :colorHistory.sync="list"></Verte>
+<Verte :showHistory="true" v-model:colorHistory="list"></Verte>
 ```
 
 ::: tip
-When providing the `colorHistory` prop, the Vete store does not handle any changes to the history, also the `onRecentColorsChange` handler will no longer fire. So you might need to handle persisting the color histroy using `watch` and conventional Vue patterns.
+When providing the `colorHistory` prop, the Verte store does not handle any changes to the history so you might need to handle persisting the color histroy using conventional Vue patterns.
 :::
