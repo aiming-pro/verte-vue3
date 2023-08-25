@@ -40,8 +40,8 @@ yarn add verte-vue3
 </template>
 
 <script setup>
-import Verte from 'verte';
-import 'verte/dist/verte.css';
+import Verte from 'verte-vue3';
+import 'verte-vue3/dist/verte.css';
 </script>
 ```
 

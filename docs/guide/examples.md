@@ -32,7 +32,7 @@ sidebar: auto
 </template>
 
 <script setup>
-import Verte from 'verte';
+import Verte from 'verte-vue3';
 </script>
 ```
 
