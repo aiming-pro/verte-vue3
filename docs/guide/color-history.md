@@ -8,7 +8,7 @@ By default all Verte pickers share the same color history. The default can be co
 
 ```vue
 <script setup>
-import { useVerteStore } from 'verte';
+import { useVerteStore } from 'verte-vue3';
 
 useVerteStore({ recentColors: localStorage.getItem('colors') });
 </script>
@@ -18,7 +18,7 @@ You can subscribe to the changes of the recent colors by using a deep watcher on
 
 ```vue
 <script setup>
-import { useVerteStore } from 'verte';
+import { useVerteStore } from 'verte-vue3';
 
 // fetch and save the recent colors to the localstorage.
 const { recentColors } = useVerteStore({ recentColors: localStorage.getItem('colors') });
