@@ -42,10 +42,6 @@ export default {
     handlesValue: { type: Array, default: () => [0] },
   },
   data: () => ({
-    fill: {
-      translate: 0,
-      scale: 0,
-    },
     multiple: false,
     currentValue: 0,
     handles: [],
@@ -58,7 +54,6 @@ export default {
     },
     values() {
       this.multiple = this.values.length > 1;
-      this.fill = this.multiple ? false : this.fill || {};
     },
     modelValue(val, oldVal) {
       if (val === oldVal || val === this.currentValue) return;
@@ -103,6 +98,7 @@ export default {
       }
     },
     initGradient(gradient) {
+      if (!this.fill) return;
       if (gradient.length > 1) {
         this.fill.style.backgroundImage = `linear-gradient(90deg, ${gradient})`;
         return;
@@ -273,11 +269,6 @@ export default {
       window.requestAnimationFrame(() => {
         const normalized = this.normalizeValue(value);
         const positionPercentage = this.getPositionPercentage(normalized);
-
-        if (this.fill) {
-          this.fill.translate = positionPercentage * this.width;
-          this.fill.scale = 1 - positionPercentage;
-        }
 
         this.values[this.activeHandle] = normalized;
         this.handles[this.activeHandle].value = normalized;
