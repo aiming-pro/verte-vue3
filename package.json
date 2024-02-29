@@ -33,7 +33,7 @@
   "homepage": "https://aiming-pro.github.io/verte-vue3/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aiming-pro/verte-vue3"
+    "url": "git+https://github.com/aiming-pro/verte-vue3.git"
   },
   "keywords": [
     "Vue 3",
