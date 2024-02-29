@@ -38,12 +38,12 @@ You can also use a CDN:
 
 ```vue
 <template>
-  <Verte picker="square" model="rgb"></verte>
+  <Verte picker="square" model="rgb" />
 </template>
 
 <script setup>
-  import Verte from 'verte-vue3';
-  import 'verte-vue3/dist/verte.css';
+import Verte from 'verte-vue3';
+import 'verte-vue3/dist/verte.css';
 </script>
 ```
 

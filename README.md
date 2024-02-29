@@ -36,7 +36,7 @@ yarn add verte-vue3
 
 ```vue
 <template>
-  <Verte picker="square" model="rgb"></Verte>
+  <Verte picker="square" model="rgb" />
 </template>
 
 <script setup>

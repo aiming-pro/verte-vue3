@@ -28,7 +28,7 @@ sidebar: auto
 
 ```vue
 <template>
-  <Verte></Verte>
+  <Verte />
 </template>
 
 <script setup>

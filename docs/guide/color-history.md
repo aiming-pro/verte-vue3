@@ -21,10 +21,16 @@ You can subscribe to the changes of the recent colors by using a deep watcher on
 import { useVerteStore } from 'verte-vue3';
 
 // fetch and save the recent colors to the localstorage.
-const { recentColors } = useVerteStore({ recentColors: localStorage.getItem('colors') });
-watch(recentColors, (colors) => {
-  localStorage.setItem('colors', JSON.stringify(colors));
-}, { deep: true });
+const { recentColors } = useVerteStore({
+  recentColors: localStorage.getItem('colors'),
+});
+watch(
+  recentColors,
+  (colors) => {
+    localStorage.setItem('colors', JSON.stringify(colors));
+  },
+  { deep: true }
+);
 </script>
 ```
 
@@ -33,15 +39,15 @@ watch(recentColors, (colors) => {
 Verte accepts a `colorHistory` prop which is an array of color strings, this will disable sharing between verte components and each one will have its own history.
 
 ```vue
-<Verte :showHistory="true" :colorHistory="list"></Verte>
+<Verte :showHistory="true" :colorHistory="list" />
 ```
 
 You could allow sharing between some verte components using `v-model`:
 
 ```vue
-<Verte :showHistory="true" v-model:colorHistory="list"></Verte>
+<Verte :showHistory="true" v-model:colorHistory="list" />
 
-<Verte :showHistory="true" v-model:colorHistory="list"></Verte>
+<Verte :showHistory="true" v-model:colorHistory="list" />
 ```
 
 ::: tip
