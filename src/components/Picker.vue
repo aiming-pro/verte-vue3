@@ -191,7 +191,7 @@ export default {
       }
     },
     updateSquareColors() {
-      if (!this.pickerRect);
+      if (!this.pickerRect) return;
       const { width, height } = this.pickerRect;
       this.ctx.clearRect(0, 0, width, height);
 
