@@ -126,9 +126,9 @@ export default {
       if (this.mode === 'square') {
         if (this.pickerRect) {
           const { width, height } = this.pickerRect;
-        const x = (this.currentColor.sat / 100) * width;
-        const y = ((100 - this.currentColor.lum) / 100) * height;
-        this.cursor = { x, y };
+          const x = (this.currentColor.sat / 100) * width;
+          const y = ((100 - this.currentColor.lum) / 100) * height;
+          this.cursor = { x, y };
         }
         this.currentHue = this.currentColor.hue;
       }
@@ -164,7 +164,7 @@ export default {
       this.$emit('update:modelValue', this.currentColor);
     },
     updateWheelColors() {
-      if (!this.circle) return;
+      if (!this.circle || !this.pickerRect) return;
       const { width, height } = this.pickerRect;
 
       const x = this.circle.xCords;
@@ -191,6 +191,7 @@ export default {
       }
     },
     updateSquareColors() {
+      if (!this.pickerRect);
       const { width, height } = this.pickerRect;
       this.ctx.clearRect(0, 0, width, height);
 
