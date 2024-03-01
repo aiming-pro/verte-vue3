@@ -110,7 +110,6 @@ export default {
     },
     // this function calls when the color changed from outside the picker
     handleValue(color, muted = false) {
-      const { width, height } = this.pickerRect;
       this.currentColor = toHsl(color);
       // prvent upadtion picker slider for causing
       // echo udationg to the current color value
@@ -125,9 +124,12 @@ export default {
       }
 
       if (this.mode === 'square') {
+        if (this.pickerRect) {
+          const { width, height } = this.pickerRect;
         const x = (this.currentColor.sat / 100) * width;
         const y = ((100 - this.currentColor.lum) / 100) * height;
         this.cursor = { x, y };
+        }
         this.currentHue = this.currentColor.hue;
       }
     },
