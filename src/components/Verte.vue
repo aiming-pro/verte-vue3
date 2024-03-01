@@ -125,11 +125,17 @@
             :style="`color: ${clr}`"
             @click.prevent="selectColor(clr)"
           )
-
 </template>
 
 <script>
-import { toRgb, toHex, toHsl, isValidColor } from 'color-fns';
+import {
+  toRgb,
+  toHex,
+  toHsl,
+  isValidColor,
+  decNumToHex,
+  hexNumToDec,
+} from 'color-fns';
 import Picker from './Picker.vue';
 import Slider from './Slider.vue';
 import { MAX_COLOR_HISTROY, useVerteStore } from '../store';
@@ -241,6 +247,10 @@ export default {
           return 1;
         }
 
+        if (this.model === 'hex') {
+          return Number((hexNumToDec(this[this.model].alpha) / 255).toFixed(2));
+        }
+
         if (isNaN(this[this.model].alpha)) {
           return 1;
         }
@@ -248,7 +258,8 @@ export default {
         return this[this.model].alpha;
       },
       set(val) {
-        this[this.model].alpha = val;
+        this[this.model].alpha =
+          this.model === 'hex' ? decNumToHex(val * 255) : val;
         this.selectColor(this[this.model]);
       },
     },
